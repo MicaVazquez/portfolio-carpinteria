@@ -5,6 +5,8 @@ Adrogué, Zona Sur — Buenos Aires.
 
 Hecho con React + Vite.
 
+**Sitio en vivo → [carpinteria-cpv.netlify.app](https://carpinteria-cpv.netlify.app/)**
+
 ![Portada del sitio](src/img/portada.jpg)
 
 ![Galería de trabajos con filtros por categoría](src/img/galeria.jpg)
