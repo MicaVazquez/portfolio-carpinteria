@@ -1,0 +1,120 @@
+.footer {
+  background: var(--tinta);
+  color: var(--crema);
+  padding: 56px 0 40px;
+  opacity: 0;
+  transition: opacity 600ms ease-in-out;
+}
+.footer.visible {
+  opacity: 1;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px;
+}
+
+@media (min-width: 641px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+}
+
+.columna {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: rgba(241, 236, 227, 0.75);
+}
+
+.marca {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--crema);
+  margin-bottom: 4px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav a {
+  color: rgba(241, 236, 227, 0.75);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+.nav a:hover {
+  color: var(--crema);
+}
+
+.tituloCol {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+  color: var(--crema);
+  margin-bottom: 2px;
+}
+
+.whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(241, 236, 227, 0.1);
+  color: var(--crema);
+  transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
+}
+.whatsapp:hover {
+  transform: scale(1.1);
+  opacity: 0.85;
+}
+
+.arriba {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--tinta);
+  color: var(--crema);
+  border: none;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out, background 200ms ease-in-out;
+  z-index: 60;
+}
+.arriba.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.arriba:hover {
+  background: var(--marron);
+}
+
+.redes {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.arroba {
+  font-size: 0.82rem;
+  color: rgba(241, 236, 227, 0.75);
+}

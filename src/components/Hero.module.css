@@ -1,0 +1,153 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--tinta);
+}
+
+.marco {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+}
+
+.fondo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: var(--bg-chica);
+  background-size: cover;
+  background-position: center;
+}
+/* La version pesada solo cuando la pantalla la justifica */
+@media (min-width: 1400px) {
+  .fondo {
+    background-image: var(--bg-grande);
+  }
+}
+
+.velo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(rgba(20, 16, 12, 0.45), rgba(20, 16, 12, 0.75));
+}
+
+/* Cuatro columnas que entran desde la izquierda, escalonadas */
+.columnas {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  pointer-events: none;
+}
+
+.columna {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: translateX(-115%);
+  transition:
+    transform 1100ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 700ms ease-out;
+}
+.columna.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.columna::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 16, 12, 0.5);
+}
+
+.texto {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  max-width: 780px;
+  padding: 0 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.titulo {
+  font-size: clamp(1.8rem, 7.5vw, 3rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  margin-bottom: 18px;
+}
+
+.palabra {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.letra {
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(-40px);
+  filter: blur(6px);
+  transition:
+    opacity 420ms ease-out,
+    transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 420ms ease-out;
+}
+.titulo.visible .letra {
+  opacity: 1;
+  transform: translateX(0);
+  filter: blur(0);
+}
+
+.bajada {
+  margin: 0 auto 28px;
+  max-width: 480px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.95rem;
+  opacity: 0;
+  transform: translateX(-40px);
+  transition:
+    opacity 700ms ease-out,
+    transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: 950ms;
+}
+.bajada.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+a.cta {
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(-40px);
+  transition:
+    opacity 700ms ease-out,
+    transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: 1150ms;
+}
+a.cta.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (min-width: 641px) {
+  .titulo {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+  }
+
+  .bajada {
+    font-size: 1rem;
+  }
+}

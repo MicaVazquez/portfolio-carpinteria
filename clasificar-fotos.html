@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clasificar fotos · Carpintería</title>
+<style>
+  :root { --crema:#f1ece3; --tinta:#1e1a16; --gris:#7a7065; --linea:#d8cfc0; --oro:#d9a441; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--crema); color:var(--tinta);
+         font-family:'Segoe UI',system-ui,sans-serif; line-height:1.5; }
+  header { position:sticky; top:0; z-index:10; background:var(--tinta); color:var(--crema);
+           padding:14px 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  header h1 { font-size:1rem; text-transform:uppercase; letter-spacing:.12em; margin:0; font-weight:600; }
+  header .info { font-size:.8rem; color:#c9bfae; margin-right:auto; }
+  button { font:inherit; cursor:pointer; border:none; padding:10px 18px; background:var(--oro);
+           color:var(--tinta); font-weight:600; text-transform:uppercase; letter-spacing:.1em; font-size:.75rem; }
+  button.sec { background:transparent; color:var(--crema); border:1px solid #6b6055; }
+  main { max-width:1240px; margin:0 auto; padding:28px 24px 90px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(275px,1fr)); gap:28px; }
+  .item { background:#fff; border:1px solid var(--linea); }
+  .item.agrupado { border-color:var(--oro); box-shadow:0 0 0 2px rgba(217,164,65,.25); }
+  .marco { position:relative; aspect-ratio:1/1; overflow:hidden; background:#e9e2d5; display:block; }
+  .marco img { width:100%; height:100%; object-fit:cover; display:block; }
+  .num { position:absolute; top:0; left:0; background:var(--tinta); color:var(--crema);
+         font-weight:700; font-size:.85rem; padding:6px 12px; }
+  .sello { position:absolute; right:8px; bottom:8px; background:var(--oro); color:var(--tinta);
+           font-size:.68rem; font-weight:700; padding:4px 9px; text-transform:uppercase;
+           letter-spacing:.08em; display:none; }
+  .item.agrupado .sello { display:block; }
+  .campos { padding:12px; display:grid; gap:8px; }
+  label { font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--gris); }
+  input, select { width:100%; font:inherit; font-size:.88rem; padding:7px 9px;
+                  border:1px solid var(--linea); background:#fff; color:var(--tinta); }
+  input:focus, select:focus { outline:2px solid var(--oro); outline-offset:-1px; }
+  select.mismo { background:#fbf7f0; }
+  #salida { width:100%; height:340px; margin-top:22px; font-family:ui-monospace,Consolas,monospace;
+            font-size:.78rem; padding:14px; border:1px solid var(--linea); display:none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Clasificar fotos</h1>
+  <span class="info">En "Es el mismo mueble que…" elegí de la lista. Se guarda solo en tu navegador.</span>
+  <button class="sec" onclick="limpiar()">Borrar todo</button>
+  <button onclick="generar()">Generar código</button>
+</header>
+<main>
+  <datalist id="materiales"></datalist>
+  <div class="grid" id="grid"></div>
+  <textarea id="salida" readonly></textarea>
+</main>
+<script>
+const CATEGORIAS = [{"id": "cocinas", "nombre": "Cocinas"}, {"id": "placares", "nombre": "Placares y vestidores"}, {"id": "banos", "nombre": "Baños y vanitorys"}, {"id": "puertas", "nombre": "Puertas y revestimientos"}, {"id": "muebles", "nombre": "Muebles a medida"}];
+const MATERIALES = ['Laqueado','Melamina','MDF laqueado','Enchapado en roble','Enchapado en paraíso','Madera maciza','Melamina símil madera'];
+const FOTOS = [{"id": "AP1GczOw8MZPXgbpPe6YK2JPbLUnni53eAXmP2L_uKt9ywI6oaxN9ZYE7OpCVJlxsdwW9wJEkxv8DrEOo1Z0PL-0fOmM7eq1m88bKESX-Pip87fpVrv9YWnU", "titulo": "Trabajo 1", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczM8N_wx0hYX9p07Xz51vHyUA12wpoNHsHMI9tSnC4spZk26OJBig67HYM9gVMKmt5QAwNBroI0cUg3XX3xR5-zsGKfpPIvc_IUiwWgNx1ZAHOuZoQbF", "titulo": "Trabajo 2", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczPUKEC085rqVP6BIYRX_4nrvFSoamCe8FtFp0e427vS9FK3A-cM21ST5bFOvNYelgzBJKSfQPje0vg9XJ4LG6vI6lNPXsciyQmrFlCU-GNioHgRfdLC", "titulo": "Trabajo 3", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczMnLXc9v46qTC8muhoxnoPHuxl6Yw99CpV_ixVUJqa81dil966VnUfyJiNKHMI6euTGoZ7Ri_qW8RDR_Q-WXEg8wgUq1xq6PGe997B27nK-qsihQidS", "titulo": "Trabajo 4", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczO1e9D9f_tj8rS9vxDYUV1vk2DjtZzVjKe158PP41gghTxZaqPtSNcwX6dtk-W9QNXsimxrVLVTGBWLbPytZvb_WH15XNqMgE5KG5WAvpw63t7swxh3", "titulo": "Trabajo 5", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczPrtIkRv6oOhrvGg-IdUk8EwOGio8phS6cZi1seOJ5-TjI16OJlXO7QBmilBWNi0cu6DsyHzodCkPdPmXm3cyRf7gQzptrrIYLyCmzRpinV6V8DJHbV", "titulo": "Trabajo 6", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczOJADHepbUl_mM4qGXeDJSmF0E86CCA0G-XXC3WiU7rNU8MqU7TMQEWzrCRYlol2aVPnt7hcUv3A-8sx35OtlR9e7RYlCP8tZLd2o_K6L9yDqjLrdzF", "titulo": "Trabajo 7", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczPH7MMKTPVJ917L6ZjpcwElrzwTmrR75Cfz0cw4KWQzPMyyo15yuZX7mZP29M96gFaYs-y1ZGgyvsfw8G39tXKm0fbZ9wekpqilkWf5waXIRqOkEP6u", "titulo": "Trabajo 8", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczM4KeAFFpgXADVUSdfrTW53lxjG7I2eyQqvd52x-tmpuQ8mC28ivt6LzeTc3GVDeGqya7RAEZ7KEfh70rqyCa8qiimOLsZfZlf89mpJXl0QCIKssVBp", "titulo": "Trabajo 9", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczNMnC_zjKnWKSSmyOgXcHXqbz1GiOK71IxraPy6bnl2It87hs0JhwXe7sbo6eDZ5QT9fKpEmS8BFk_LCCTMGpg63JH4mNiNkbk-f_5Ruvd8-NNZbItw", "titulo": "Trabajo 10", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczNoBaylAGmM9uWhb2EmWFcRmpoUAtQP7ez9-1jH5052xcZzATkRQ-orsmi4wAr920yqHgEZ6-blw69jHQWp2AEjIcqL8dhProin4YB2DEWCLdoJMm8x", "titulo": "Trabajo 11", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczN_Af3FZUaXPAW3k52yLF8yzpzgdQDJ5OXv09n-t5mKKhUg5vxzXNcjUhAikP24aVQlV8ZrbiEis0CInZCZHq8RAgSuvuXkNHIdME3Bo5nZhyJZsfC8", "titulo": "Trabajo 12", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczPu23SL51bDSzInBKlv96G_rFNZQ8ybWHi9UyIpCZq-wCUBz-uv9uuIdW_znnlTlJFuS6t61L_H2WY102GUos5mYDmJnxkbVodxgBkzw9WWOioITDDE", "titulo": "Trabajo 13", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczPNh5Z9vjx4Uplv1yzG6v97cY1BkJTORuUGA-rvw86XnoTKk1Y-e8NhMsIf_Woq6SZtDf6gWVMqdB7_H9qUUWoEHTeDhl7ppGpLO1DsfWr249rgXHXk", "titulo": "Trabajo 14", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczP7jwxlTbNsRDMQQQSXAUHibJM9l0i-c5G36UAbMOtCobG-c4lbiaO3C_5iHJWTuZwsMX7cB83fdmfKLB5ucXPtbQsAuPtfCRQnsQbEu7RRqgAc5Nc0", "titulo": "Trabajo 15", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczN4C9ft8VlPfJ95ZH4oySRtixjgFdL0Txk3FDF-Jf3lJuESLUpHWnfu_P6nbkojq_5SkgHbEPVzTL1iRaMHSC5CCmfWOVlNZkMrDG_JCeFngZ42vgHN", "titulo": "Trabajo 16", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczNejSXQfbAKm0hfWCX_FnPYRCfJDmwxKPc6rPbelunKYFlnSzrrtxKDnfNegs73ZkMMOZHnTj7oh9tXokQo5wkWkUfgjymReJGobf8G4s-7ZnFrYgyR", "titulo": "Trabajo 17", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczPrJsd9z5MkkaXoYcPgVzUQy1HQHMRGgpqtppmac44LwDohT8MC1SyWyJKyaCsRdq2YGEZUpiE28ApHFWWsOxhir8IX8U2nLuyt1wTIM47TTyQ9alMR", "titulo": "Trabajo 18", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczNk-DceWd0Vd2DAr9CyqYcfyMQHfiyH3ZNEeepXUiPWH_NAJxwKlsxfyXwU6UIxtmq8Iet1SxFL3VU_kTdJfy4c9__4H3-FYJfnDSwD_btpZPug8y50", "titulo": "Trabajo 19", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczP5y3zVf4g5Wy-I0VTpHQhn1eXhn1TTZxixtQI9WrtJnDfPvJSlg6ghtqlczZJqUd19489HFSpCh5B_R_lx85jSTAjINpbY8thjSvehoy1rEYZV0yi-", "titulo": "Trabajo 20", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczNYkNzvre63Ow1GXcOvzRylE69LyZR6Yq2-3Hb2Wfl-9_XM-e1tyqT46gYINrYNKorJrWRrrS_ff8McCpXNXxS53eSS3aPVCLbdosrCzR3-vqyfCmch", "titulo": "Trabajo 21", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczM530oyszU9rkwaAhIeMMZkkRHvyEMF64G6NsEUaperlItRzLAocHCPhMUEDfW1M86_bR9Yxu7qGgGFxbsvEGqer_AK3lYBSyO0DzKOKRHa35UIPEUn", "titulo": "Trabajo 22", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczNPzPJd3IXnTvUBmhldXCSd2bRNJ7CFr8-Ad5NMqDByoB5AKdcF7VS0EWyxcrd6_EADaZUOxsONlaxQYWlXaoX1SSSSqX4CAVYs0tTiFNXjTAfbuGsG", "titulo": "Trabajo 23", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczPIyOVPsGI-PID8gZVlqcDPVTfIMpBLa6zehGNaqkPpBC0eKkPL1SFG2GfcSsPitMD-mHaNK-DuBbxaBCfCBLznj5RpJJ5LWQLV08vLx0-iCRHCuDV1", "titulo": "Trabajo 24", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczO-MNSCppq3civPPr6o_qFGNuzNFDlwnv8onscGvABj9vfas-8B_zasB-J47edkmbqB-RmUO37RgyPNewnLHJgH-3n84L0SrpjDrJZK5m7GGRSTW0-D", "titulo": "Trabajo 25", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczP6ljt_w1uMSlwSLxIOY5xKadODgp1y0FGM5dFMaJoe_59x3K2NnR_1M658qZ4v6Te8ZjDl5k1wmpSBJtiFXyXj-3yZAaH6tXwtsa3uFGEKLa2BSy7B", "titulo": "Trabajo 26", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczNTe1zlPNgq-npJ9WI9xy3y7mv6PkRVhzyCjgRf6pJe6JsoX936cpv0V9PknU1XN0OAVJ62Iz_7y--xncz9L9unxWlO72UGE9BIeMVAr8rAKKdPXzNu", "titulo": "Trabajo 27", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczPKaRg2DpjdgfLi1CvBAHhCvNmYj-WYj2qeZtljRJNhLM7ukSwT9e0DlKwTwS4UmvEeGKhufr0ThaNDvCqEMwTjcNyezfZaXbU0CUxuFroXSSpTekaM", "titulo": "Trabajo 28", "detalle": "", "categoria": "muebles"}, {"id": "AP1GczNp-3Lnid7hfNICuVaOb1uNy1JXpubBQQiwLD24izks-bnjVjfqUvaJVzM4j7FuDzo7J2gzoKTAOTwSWHhHkfVX2OiS6QSP1jeCNb2W0DUkBtitgZT1", "titulo": "Trabajo 29", "detalle": "", "categoria": "muebles"}];
+const guardado = JSON.parse(localStorage.getItem('clasif') || '{}');
+
+const dato = (id, campo, pd) => {
+  const v = (guardado[id] || {})[campo];
+  return (v === undefined || v === '') ? pd : v;
+};
+
+document.getElementById('materiales').innerHTML =
+  MATERIALES.map(m => `<option value="${m}">`).join('');
+const grid = document.getElementById('grid');
+
+function opcionesMismo(iActual) {
+  let out = '<option value="">— Es un trabajo aparte —</option>';
+  FOTOS.forEach((f, i) => {
+    if (i === iActual) return;
+    const t = dato(f.id, 'titulo', f.titulo);
+    const sel = dato(FOTOS[iActual].id, 'mismoQue', '') === String(i) ? 'selected' : '';
+    out += `<option value="${i}" ${sel}>Foto ${i + 1} · ${t}</option>`;
+  });
+  return out;
+}
+
+function pintar() {
+  grid.innerHTML = '';
+  FOTOS.forEach((f, i) => {
+    const div = document.createElement('div');
+    const mq = dato(f.id, 'mismoQue', '');
+    div.className = 'item' + (mq !== '' ? ' agrupado' : '');
+    div.innerHTML = `
+      <span class="marco">
+        <span class="num">${i + 1}</span>
+        <img loading="lazy" src="https://lh3.googleusercontent.com/pw/${f.id}=w600-rw-no" alt="">
+        <span class="sello">= foto ${Number(mq) + 1}</span>
+      </span>
+      <div class="campos">
+        <div>
+          <label>Título</label>
+          <input data-id="${f.id}" data-campo="titulo" value="${dato(f.id,'titulo',f.titulo)}">
+        </div>
+        <div>
+          <label>Material (opcional, se puede dejar vacío)</label>
+          <input list="materiales" placeholder="lo completás cuando te lo digan"
+                 data-id="${f.id}" data-campo="detalle" value="${dato(f.id,'detalle',f.detalle)}">
+        </div>
+        <div>
+          <label>Categoría</label>
+          <select data-id="${f.id}" data-campo="categoria">
+            ${CATEGORIAS.map(c => `<option value="${c.id}" ${dato(f.id,'categoria',f.categoria)===c.id?'selected':''}>${c.nombre}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label>Es el mismo mueble que…</label>
+          <select class="mismo" data-id="${f.id}" data-campo="mismoQue">${opcionesMismo(i)}</select>
+        </div>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+pintar();
+
+function guardar(el) {
+  if (!el.dataset.id) return;
+  guardado[el.dataset.id] = guardado[el.dataset.id] || {};
+  guardado[el.dataset.id][el.dataset.campo] = el.value;
+  localStorage.setItem('clasif', JSON.stringify(guardado));
+}
+grid.addEventListener('input', (e) => guardar(e.target));
+grid.addEventListener('change', (e) => {
+  guardar(e.target);
+  if (e.target.dataset.campo === 'mismoQue' || e.target.dataset.campo === 'titulo') pintar();
+});
+
+// Resuelve las cadenas: si la 5 es igual a la 3, y la 3 a la 1, todas son el grupo de la 1
+function raiz(i, visto = new Set()) {
+  if (visto.has(i)) return i;
+  visto.add(i);
+  const mq = dato(FOTOS[i].id, 'mismoQue', '');
+  return mq === '' ? i : raiz(Number(mq), visto);
+}
+
+const slug = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+  .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+
+function generar() {
+  const cuenta = {};
+  FOTOS.forEach((_, i) => { const r = raiz(i); cuenta[r] = (cuenta[r]||0)+1; });
+
+  let out = 'export const fotos = [\n';
+  FOTOS.forEach((f, i) => {
+    const r = raiz(i);
+    out += '  {\n';
+    out += "    id: '" + f.id + "',\n";
+    out += "    titulo: '" + dato(f.id,'titulo',f.titulo).replace(/'/g,"\\'") + "',\n";
+    out += "    detalle: '" + dato(f.id,'detalle',f.detalle).replace(/'/g,"\\'") + "',\n";
+    out += "    categoria: '" + dato(f.id,'categoria',f.categoria) + "',\n";
+    if (cuenta[r] > 1) {
+      const base = dato(FOTOS[r].id,'titulo',FOTOS[r].titulo);
+      out += "    proyecto: '" + (slug(base) || ('grupo-' + (r+1))) + "',\n";
+    }
+    out += '  },\n';
+  });
+  out += ']\n';
+
+  const ta = document.getElementById('salida');
+  ta.style.display = 'block';
+  ta.value = out;
+  ta.scrollIntoView({behavior:'smooth'});
+  ta.select();
+}
+
+function limpiar() {
+  if (!confirm('¿Borrar todo lo que cargaste?')) return;
+  localStorage.removeItem('clasif');
+  location.reload();
+}
+</script>
+</body>
+</html>
