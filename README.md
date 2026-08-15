@@ -5,6 +5,17 @@ Adrogué, Zona Sur — Buenos Aires.
 
 Hecho con React + Vite.
 
+![Portada del sitio](src/img/portada.jpg)
+
+![Galería de trabajos con filtros por categoría](src/img/galeria.jpg)
+
+### En el celular
+
+<p align="left">
+  <img src="src/img/portada-mobile.jpg" width="32%" alt="Portada en el celular" />
+  <img src="src/img/galeria-mobile.jpg" width="32%" alt="Galería en el celular" />
+</p>
+
 ## Correr en local
 
 ```bash
